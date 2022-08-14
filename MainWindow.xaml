@@ -1,0 +1,29 @@
+﻿<Window x:Class="WPFChess.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPFChess"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="1164" Width="1164">
+    <Border BorderBrush="Black" BorderThickness="3">
+        <Canvas
+            x:Name="boardCanvas"
+            AllowDrop="True" 
+            Background="Transparent"
+            DragOver="canvas_DragOver"
+            Drop="Canvas_Drop">
+            <Image
+                MouseMove="MouseMove"
+                x:Name="pawn1"
+                Canvas.Left="50"
+                Canvas.Top="50"
+                Width="100"
+                Height="100">
+                <Image.Source>
+                    <BitmapImage UriSource="static/pawn_w.png"/>
+                </Image.Source>
+            </Image>
+        </Canvas>
+    </Border>
+</Window>
