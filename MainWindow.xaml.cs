@@ -25,12 +25,15 @@ namespace WPFChess
         private double dragOffsetX = 0;
         private double dragOffsetY = 0;
         private object dragItem = null;
+        public delegate void MouseMoveEventHandler(object sender, MouseEventArgs e);
+        private static Delegate handler { get; set; }
         private Board board;
 
         public MainWindow()
         {
             InitializeComponent();
-            board = new Board(116, 116, 0, boardCanvas);
+            handler = MouseMove;
+            board = new Board(116, 116, 0, boardCanvas, new MouseMoveEventHandler(MouseMove));
         }
         
         

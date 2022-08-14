@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace WPFChess
@@ -12,20 +13,20 @@ namespace WPFChess
     internal static class Variables
     {
         public static Canvas? boardCanvas;
+        public static WPFChess.MainWindow.MouseMoveEventHandler mouseHandler =;
     }
 
     internal class Board
     {
         private Canvas boardCanvas;
 
-        private Field[,] fields = new Field[8,8];
+        private Field[,] fields;
 
-        public Board(int sizeOfField, int sizeOfOffset, int setup, Canvas boardCanvas)
+        public Board(int sizeOfField, int sizeOfOffset, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler handler)
         {
             this.initializeBoard(boardCanvas);
             this.initalizeFields(sizeOfField, sizeOfOffset, setup);
-            
-            
+            Variables.mouseHandler = handler;
         }
 
         private void initializeBoard(Canvas boardCanvas)
@@ -40,6 +41,20 @@ namespace WPFChess
 
         private void initalizeFields(int sizeOfField, int sizeOfOffset, int setup)
         {
+            int height = sizeOfOffset + (sizeOfField / 2);
+            int width = sizeOfField + (sizeOfField / 2);
+            fields = new Field[8, 8];
+            for (int i = 0; i < fields.GetLength(0); i++)
+            {
+                for (int j = 0; j < fields.GetLength(1); j++)
+                {
+                    fields[j, i] = new Field(width, height, null);
+                    width += sizeOfField;
+                }
+                height += sizeOfField;
+            }
+
+            fields[0, 0].piece = new Piece("static/knight_b.png", "knight", fields[0, 0]);
 
         }
 
@@ -55,9 +70,9 @@ namespace WPFChess
     {
         public int x { get; set; }
         public int y { get; set; }
-        Piece piece;
+        public Piece piece { get; set; }
 
-        Field(int x, int y, Piece piece)
+        public Field(int x, int y, Piece piece)
         {
             this.x = x;
             this.y = y;
@@ -74,16 +89,20 @@ namespace WPFChess
         public Field field { get; set; }
 
 
-        Piece(string imagePath, string type, Field field)
+        public Piece(string imagePath, string type, Field field)
         {
             this.type = type;
             this.field = field;
-            this.image = new Image();
+            image = new Image();
             image.Source = new BitmapImage(new Uri(imagePath, UriKind.Relative));
             Canvas.SetLeft(image, field.x);
             Canvas.SetTop(image, field.y);
-            Variables.boardCanvas.Children.Add(this.image);
+            image.MouseMove += new MouseEventHandler(Variables.mouseHandler);
+            Variables.boardCanvas.Children.Add(image);
         }
+
     }
+
+
 
 }
