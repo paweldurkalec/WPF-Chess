@@ -33,7 +33,7 @@ namespace WPFChess
         {
             InitializeComponent();
             handler = MouseMove;
-            board = new Board(116, 116, 0, boardCanvas, new MouseMoveEventHandler(MouseMove));
+            board = new Board(100, 100, 0, boardCanvas, new MouseMoveEventHandler(MouseMove));
         }
         
         
@@ -55,13 +55,14 @@ namespace WPFChess
 
         private void Canvas_Drop(object sender, DragEventArgs e)
         {
-
+            Point dropPosition = e.GetPosition(boardCanvas);
+            Image image = dragItem as Image;
+            board.dropPiece(image, dropPosition);
         }
 
         private void canvas_DragOver(object sender, DragEventArgs e)
         {
             Point dropPosition = e.GetPosition(boardCanvas);
-            Trace.WriteLine(sender.GetType());
             Image image = dragItem as Image;
             Canvas.SetLeft(image, dropPosition.X - dragOffsetX);
             Canvas.SetTop(image, dropPosition.Y - dragOffsetY);

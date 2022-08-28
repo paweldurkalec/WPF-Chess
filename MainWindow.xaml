@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFChess"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1164" Width="1164">
+        Title="MainWindow" Height="1000" Width="1000">
     <Border BorderBrush="Black" BorderThickness="3">
         <Canvas
             x:Name="boardCanvas"
@@ -13,17 +13,6 @@
             Background="Transparent"
             DragOver="canvas_DragOver"
             Drop="Canvas_Drop">
-            <Image
-                MouseMove="MouseMove"
-                x:Name="pawn1"
-                Canvas.Left="50"
-                Canvas.Top="50"
-                Width="100"
-                Height="100">
-                <Image.Source>
-                    <BitmapImage UriSource="static/pawn_w.png"/>
-                </Image.Source>
-            </Image>
         </Canvas>
     </Border>
 </Window>
