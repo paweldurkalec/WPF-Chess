@@ -13,7 +13,7 @@ namespace WPFChess
     internal static class Variables
     {
         public static Canvas? boardCanvas;
-        public static WPFChess.MainWindow.MouseMoveEventHandler mouseHandler =;
+        public static WPFChess.MainWindow.MouseMoveEventHandler? mouseHandler;
     }
 
     internal class Board
@@ -24,14 +24,14 @@ namespace WPFChess
 
         public Board(int sizeOfField, int sizeOfOffset, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler handler)
         {
-            this.initializeBoard(boardCanvas);
+            this.initializeBoard(boardCanvas, handler);
             this.initalizeFields(sizeOfField, sizeOfOffset, setup);
-            Variables.mouseHandler = handler;
         }
 
-        private void initializeBoard(Canvas boardCanvas)
+        private void initializeBoard(Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler handler)
         {
             Variables.boardCanvas = boardCanvas;
+            Variables.mouseHandler = handler;
             Image boardImage = new Image();
             boardImage.Source = new BitmapImage(new Uri("static/Board.jpg", UriKind.Relative));
             Canvas.SetLeft(boardImage, 0);
@@ -58,9 +58,10 @@ namespace WPFChess
 
         }
 
-        private void findNearestField(int x, int y)
+        private Field findNearestField(int x, int y)
         {
-
+            // override equals and hash? in field in order to group
+            var result = from item in fields group item by new { item = item, distance = item.cartesianDistance(x,y) } as x 
         }
 
 
@@ -77,6 +78,11 @@ namespace WPFChess
             this.x = x;
             this.y = y;
             this.piece = piece;
+        }
+
+        public double cartesianDistance(int a, int b)
+        {
+            return Math.Sqrt(Math.Pow(a - x, 2) + Math.Pow(b - y, 2));
         }
     }
 
@@ -95,8 +101,10 @@ namespace WPFChess
             this.field = field;
             image = new Image();
             image.Source = new BitmapImage(new Uri(imagePath, UriKind.Relative));
-            Canvas.SetLeft(image, field.x);
-            Canvas.SetTop(image, field.y);
+            image.Width = 50;
+            image.Height = 80;
+            Canvas.SetLeft(image, field.x - image.Width/2);
+            Canvas.SetTop(image, field.y - image.Height/2);
             image.MouseMove += new MouseEventHandler(Variables.mouseHandler);
             Variables.boardCanvas.Children.Add(image);
         }
