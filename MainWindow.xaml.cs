@@ -46,7 +46,7 @@ namespace WPFChess
                 Image image = sender as Image;
                 dragOffsetX = e.GetPosition(boardCanvas).X - Canvas.GetLeft(image);
                 dragOffsetY = e.GetPosition(boardCanvas).Y - Canvas.GetTop(image);
-
+                //Piece piece = board.findPieceById(image.Name);
                 DragDrop.DoDragDrop(image, image, DragDropEffects.Move);
                    
 

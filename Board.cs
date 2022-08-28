@@ -120,7 +120,7 @@ namespace WPFChess
             return result;
         }
 
-        private Piece findPieceById(string id)
+        public Piece findPieceById(string id)
         {
             var partialResult = from Field field in fields group field by new { piece = field.piece } into p where p.Key.piece is not null select p.Key.piece;
             var result = from item in partialResult where item.id == id select item;
@@ -131,9 +131,7 @@ namespace WPFChess
         {
             Piece piece = findPieceById(img.Name);
             Field newField = findNearestField(point.X, point.Y);
-            newField.piece = piece;
-            piece.field = newField;
-            piece.updateImage();
+            piece.move(newField);           
         }
 
     }
@@ -142,7 +140,7 @@ namespace WPFChess
     {
         public int x { get; set; }
         public int y { get; set; }
-        public Piece piece { get; set; }
+        public Piece? piece { get; set; }
 
         public Field(int x, int y, Piece piece)
         {
@@ -184,6 +182,43 @@ namespace WPFChess
             updateImage();
             image.MouseMove += new MouseEventHandler(Variables.mouseHandler);
             Variables.boardCanvas.Children.Add(image);
+        }
+
+        private bool isMovePossible(Field newField)
+        {
+            if (newField.piece != null)
+            {
+                if (newField.piece.color == color)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public virtual void move(Field newField)
+        {
+            if (!isMovePossible(newField))
+            {
+                updateImage();
+                return;
+            }
+
+            if (newField.piece != null)
+            {
+                newField.piece.destroy();
+            }
+            newField.piece = this;
+            field.piece = null;
+            field = newField;
+            updateImage();
+
+        }
+
+        public void destroy()
+        {
+            Variables.boardCanvas.Children.Remove(image);
+            field.piece = null;
         }
 
         public void updateImage()
