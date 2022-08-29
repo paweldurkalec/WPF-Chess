@@ -14,6 +14,7 @@ namespace WPFChess
     internal static class Variables
     {
         public static Canvas? boardCanvas;
+        public static Board? board;
         public static WPFChess.MainWindow.MouseMoveEventHandler? mouseHandler;
         private static string lastID = "a";
 
@@ -61,6 +62,7 @@ namespace WPFChess
         {
             Variables.boardCanvas = boardCanvas;
             Variables.mouseHandler = handler;
+            Variables.board = this;
             Image boardImage = new Image();
             boardImage.Source = new BitmapImage(new Uri("static/Board2.jpg", UriKind.Relative));
             Canvas.SetLeft(boardImage, 0);
@@ -70,48 +72,48 @@ namespace WPFChess
 
         private void initalizeFields(int sizeOfField, int sizeOfOffset, int setup)
         {
-            int height = sizeOfOffset + (sizeOfField / 2);
-            int width = sizeOfOffset + (sizeOfField / 2);
             fields = new Field[8, 8];
+            int height = sizeOfOffset + (fields.GetLength(0)-1)*sizeOfField+(sizeOfField / 2);
+            int width = sizeOfOffset + (sizeOfField / 2);         
             for (int i = 0; i < fields.GetLength(0); i++)
             {
                 for (int j = 0; j < fields.GetLength(1); j++)
                 {
-                    fields[j, i] = new Field(width, height, null);
+                    fields[j, i] = new Field(j+1,i+1,width, height, null);
                     width += sizeOfField;
                 }
-                height += sizeOfField;
+                height -= sizeOfField;
                 width = sizeOfOffset + (sizeOfField / 2);
             }
 
             for (int i = 0; i < fields.GetLength(1); i++)
             {
-                fields[i, 1].piece = new Piece("pawn_b", fields[i, 1]);
+                fields[i, 1].piece = new Pawn("pawn_w", fields[i, 1]);
             }
             for (int i = 0; i < fields.GetLength(1); i++)
             {
-                fields[i, 6].piece = new Piece("pawn_w", fields[i, 6]);
+                fields[i, 6].piece = new Pawn("pawn_b", fields[i, 6]);
             }
-            fields[0, 0].piece = new Piece("rook_b", fields[0, 0]);
-            fields[7, 0].piece = new Piece("rook_b", fields[7, 0]);
-            fields[0, 7].piece = new Piece("rook_w", fields[0, 7]);
-            fields[7, 7].piece = new Piece("rook_w", fields[7, 7]);
+            fields[0, 0].piece = new Piece("rook_w", fields[0, 0]);
+            fields[7, 0].piece = new Piece("rook_w", fields[7, 0]);
+            fields[0, 7].piece = new Piece("rook_b", fields[0, 7]);
+            fields[7, 7].piece = new Piece("rook_b", fields[7, 7]);
 
-            fields[1, 0].piece = new Piece("knight_b", fields[1, 0]);
-            fields[6, 0].piece = new Piece("knight_b", fields[6, 0]);
-            fields[6, 7].piece = new Piece("knight_w", fields[6, 7]);
-            fields[1, 7].piece = new Piece("knight_w", fields[1, 7]);
+            fields[1, 0].piece = new Piece("knight_w", fields[1, 0]);
+            fields[6, 0].piece = new Piece("knight_w", fields[6, 0]);
+            fields[6, 7].piece = new Piece("knight_b", fields[6, 7]);
+            fields[1, 7].piece = new Piece("knight_b", fields[1, 7]);
 
-            fields[2, 0].piece = new Piece("bishop_b", fields[2, 0]);
-            fields[5, 0].piece = new Piece("bishop_b", fields[5, 0]);
-            fields[5, 7].piece = new Piece("bishop_w", fields[5, 7]);
-            fields[2, 7].piece = new Piece("bishop_w", fields[2, 7]);
+            fields[2, 0].piece = new Piece("bishop_w", fields[2, 0]);
+            fields[5, 0].piece = new Piece("bishop_w", fields[5, 0]);
+            fields[5, 7].piece = new Piece("bishop_b", fields[5, 7]);
+            fields[2, 7].piece = new Piece("bishop_b", fields[2, 7]);
 
-            fields[3, 0].piece = new Piece("queen_b", fields[3, 0]);
-            fields[3, 7].piece = new Piece("queen_w", fields[3, 7]);
+            fields[3, 0].piece = new Piece("queen_w", fields[3, 0]);
+            fields[3, 7].piece = new Piece("queen_b", fields[3, 7]);
 
-            fields[4, 0].piece = new Piece("king_b", fields[4, 0]);
-            fields[4, 7].piece = new Piece("king_w", fields[4, 7]);
+            fields[4, 0].piece = new Piece("king_w", fields[4, 0]);
+            fields[4, 7].piece = new Piece("king_b", fields[4, 7]);
         }
 
         public Field findNearestField(double x, double y)
@@ -134,24 +136,178 @@ namespace WPFChess
             piece.move(newField);           
         }
 
+        private bool onBoard(int x, int y)
+        {
+            if(x>=1 && y>=1 && x<=fields.GetLength(0) && y <= fields.GetLength(0))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private int whichDiagonal(Field firstField, Field secondField)
+        {
+            //right up
+            int i = firstField.x;
+            int j = firstField.y;
+            while(onBoard(i, j))
+            {               
+                if (fields[i-1, j-1] == secondField)
+                {
+                    return 1;
+                }
+                i++;
+                j++;
+            }
+            //right down
+            i = firstField.x;
+            j = firstField.y;
+            while (onBoard(i, j))
+            {                
+                if (fields[i - 1, j - 1] == secondField)
+                {
+                    return 2;
+                }
+                i++;
+                j--;
+            }
+            //left down
+            i = firstField.x;
+            j = firstField.y;
+            while (onBoard(i, j))
+            {
+                if (fields[i - 1, j - 1] == secondField)
+                {
+                    return 3;
+                }
+                i--;
+                j--;
+            }
+            //left up
+            i = firstField.x;
+            j = firstField.y;
+            while (onBoard(i, j))
+            {
+                if (fields[i - 1, j - 1] == secondField)
+                {
+                    return 4;
+                }
+                i--;
+                j++;
+            }
+            return 0;
+        }
+
+        public bool isFreeBetween(Field firstField, Field secondField, string mode="all")
+        {
+            int a, b;
+            if (mode == "vertically")
+            {
+                if(firstField.x == secondField.x)
+                {
+                    a = firstField.y > secondField.y ? -1 : 1;
+                    for (int i = firstField.y+a; i != secondField.y; i += a)
+                    {
+                        if (fields[firstField.x-1, i-1].piece != null)
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (mode == "horizontally")
+            {
+                if (firstField.y == secondField.y)
+                {
+                    a = firstField.x > secondField.x ? -1 : 1;
+                    for (int i = firstField.x + a; i != secondField.x; i += a)
+                    {
+                        if (fields[firstField.y-1, i-1].piece != null)
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (mode == "diagonally")
+            {
+                switch (whichDiagonal(firstField, secondField))
+                {
+                    case 0: 
+                        return false;
+                    case 1:
+                        a = 1; 
+                        b = 1;
+                        break;
+                    case 2:
+                        a = 1;
+                        b = -1;
+                        break;
+                    case 3:
+                        a = -1;
+                        b = -1;
+                        break;
+                    default:
+                        a = -1;
+                        b = 1;
+                        break;
+                }
+                int i = firstField.x;
+                int j = firstField.y;
+                while (onBoard(i, j) && fields[i - 1, j - 1]!=secondField)
+                {
+                    i += a;
+                    j += b;
+                    if (fields[i - 1, j - 1].piece!=null)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                if(isFreeBetween(firstField, secondField, "vertically") 
+                    || isFreeBetween(firstField, secondField, "horizontally") 
+                    || isFreeBetween(firstField, secondField, "diagonally"))
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
     }
 
     internal class Field
     {
         public int x { get; set; }
         public int y { get; set; }
+        public int xOnCanvas { get; set; }
+        public int yOnCanvas { get; set; }
         public Piece? piece { get; set; }
 
-        public Field(int x, int y, Piece piece)
-        {
+        public Field(int x, int y, int xPosition, int yPosition, Piece piece)
+        {   
             this.x = x;
             this.y = y;
+            this.xOnCanvas = xPosition;
+            this.yOnCanvas = yPosition;
             this.piece = piece;
         }
 
         public double cartesianDistance(double a, double b)
         {
-            return Math.Sqrt(Math.Pow(a - x, 2) + Math.Pow(b - y, 2));
+            return Math.Sqrt(Math.Pow(a - xOnCanvas, 2) + Math.Pow(b - yOnCanvas, 2));
         }
     }
 
@@ -184,11 +340,11 @@ namespace WPFChess
             Variables.boardCanvas.Children.Add(image);
         }
 
-        private bool isMovePossible(Field newField)
+        protected virtual bool isMovePossible(Field newField)
         {
             if (newField.piece != null)
             {
-                if (newField.piece.color == color)
+                if (newField.piece.color == color || newField.piece.type == "king")
                 {
                     return false;
                 }
@@ -196,14 +352,13 @@ namespace WPFChess
             return true;
         }
 
-        public virtual void move(Field newField)
+        public void move(Field newField)
         {
             if (!isMovePossible(newField))
             {
                 updateImage();
                 return;
             }
-
             if (newField.piece != null)
             {
                 newField.piece.destroy();
@@ -212,7 +367,6 @@ namespace WPFChess
             field.piece = null;
             field = newField;
             updateImage();
-
         }
 
         public void destroy()
@@ -223,10 +377,71 @@ namespace WPFChess
 
         public void updateImage()
         {
-            Canvas.SetLeft(image, field.x - image.Width / 2);
-            Canvas.SetTop(image, field.y - image.Height / 2);
+            Canvas.SetLeft(image, field.xOnCanvas - image.Width / 2);
+            Canvas.SetTop(image, field.yOnCanvas - image.Height / 2);
         }
 
+    }
+
+    internal class Pawn : Piece
+    {
+        private bool firstMove;
+        public Pawn(string type, Field field) : base(type, field)
+        {
+            firstMove = true;
+        }
+
+        protected override bool isMovePossible(Field newField)
+        {
+            if (!base.isMovePossible(newField))
+            {
+                return false;
+            }
+            if (firstMove)           
+            {
+                //white 2 forward
+                if(color=='w' && newField.y == field.y + 2 && Variables.board.isFreeBetween(field, newField))
+                {
+                    firstMove=false;
+                    return true;
+                }
+                //black 2 forward
+                if (color == 'b' && newField.y == field.y - 2 && Variables.board.isFreeBetween(field, newField))
+                {
+                    firstMove = false;
+                    return true;
+                }
+            }
+            //white 1 forward
+            if (color == 'w' && newField.y == field.y + 1 && newField.x==field.x)
+            {
+                firstMove = false;
+                return true;
+            }
+            //black 1 forward
+            if (color == 'b' && newField.y == field.y - 1 && newField.x == field.x)
+            {
+                firstMove = false;
+                return true;
+            }
+            
+            if (newField.piece != null)
+            {
+                //white attack
+                if (color == 'w' && newField.y == field.y + 1 && Math.Abs(field.x - newField.x)==1)
+                {
+                    firstMove = false;
+                    return true;
+                }
+                //black attack
+                if (color == 'b' && newField.y == field.y - 1 && Math.Abs(field.x - newField.x) == 1)
+                {
+                    firstMove = false;
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
 
