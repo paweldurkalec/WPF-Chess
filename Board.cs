@@ -94,26 +94,26 @@ namespace WPFChess
             {
                 fields[i, 6].piece = new Pawn("pawn_b", fields[i, 6]);
             }
-            fields[0, 0].piece = new Piece("rook_w", fields[0, 0]);
-            fields[7, 0].piece = new Piece("rook_w", fields[7, 0]);
-            fields[0, 7].piece = new Piece("rook_b", fields[0, 7]);
-            fields[7, 7].piece = new Piece("rook_b", fields[7, 7]);
+            fields[0, 0].piece = new Rook("rook_w", fields[0, 0]);
+            fields[7, 0].piece = new Rook("rook_w", fields[7, 0]);
+            fields[0, 7].piece = new Rook("rook_b", fields[0, 7]);
+            fields[7, 7].piece = new Rook("rook_b", fields[7, 7]);
 
-            fields[1, 0].piece = new Piece("knight_w", fields[1, 0]);
-            fields[6, 0].piece = new Piece("knight_w", fields[6, 0]);
-            fields[6, 7].piece = new Piece("knight_b", fields[6, 7]);
-            fields[1, 7].piece = new Piece("knight_b", fields[1, 7]);
+            fields[1, 0].piece = new Knight("knight_w", fields[1, 0]);
+            fields[6, 0].piece = new Knight("knight_w", fields[6, 0]);
+            fields[6, 7].piece = new Knight("knight_b", fields[6, 7]);
+            fields[1, 7].piece = new Knight("knight_b", fields[1, 7]);
 
-            fields[2, 0].piece = new Piece("bishop_w", fields[2, 0]);
-            fields[5, 0].piece = new Piece("bishop_w", fields[5, 0]);
-            fields[5, 7].piece = new Piece("bishop_b", fields[5, 7]);
-            fields[2, 7].piece = new Piece("bishop_b", fields[2, 7]);
+            fields[2, 0].piece = new Bishop("bishop_w", fields[2, 0]);
+            fields[5, 0].piece = new Bishop("bishop_w", fields[5, 0]);
+            fields[5, 7].piece = new Bishop("bishop_b", fields[5, 7]);
+            fields[2, 7].piece = new Bishop("bishop_b", fields[2, 7]);
 
-            fields[3, 0].piece = new Piece("queen_w", fields[3, 0]);
-            fields[3, 7].piece = new Piece("queen_b", fields[3, 7]);
+            fields[3, 0].piece = new Queen("queen_w", fields[3, 0]);
+            fields[3, 7].piece = new Queen("queen_b", fields[3, 7]);
 
-            fields[4, 0].piece = new Piece("king_w", fields[4, 0]);
-            fields[4, 7].piece = new Piece("king_b", fields[4, 7]);
+            fields[4, 0].piece = new King("king_w", fields[4, 0]);
+            fields[4, 7].piece = new King("king_b", fields[4, 7]);
         }
 
         public Field findNearestField(double x, double y)
@@ -227,7 +227,7 @@ namespace WPFChess
                     a = firstField.x > secondField.x ? -1 : 1;
                     for (int i = firstField.x + a; i != secondField.x; i += a)
                     {
-                        if (fields[firstField.y-1, i-1].piece != null)
+                        if (fields[i - 1, firstField.y - 1].piece != null)
                         {
                             return false;
                         }
@@ -264,10 +264,14 @@ namespace WPFChess
                 }
                 int i = firstField.x;
                 int j = firstField.y;
-                while (onBoard(i, j) && fields[i - 1, j - 1]!=secondField)
+                while (onBoard(i, j))
                 {
                     i += a;
                     j += b;
+                    if(fields[i - 1, j - 1] == secondField)
+                    {
+                        break;
+                    }
                     if (fields[i - 1, j - 1].piece!=null)
                     {
                         return false;
@@ -444,6 +448,107 @@ namespace WPFChess
         }
     }
 
+    internal class Knight : Piece
+    {
+        public Knight(string type, Field field) : base(type, field)
+        {
+        }
 
+        protected override bool isMovePossible(Field newField)
+        {
+            if (!base.isMovePossible(newField))
+            {
+                return false;
+            }
+            if ((Math.Abs(field.x-newField.x)==1 && Math.Abs(field.y - newField.y) == 2)||
+                (Math.Abs(field.x - newField.x) == 2 && Math.Abs(field.y - newField.y) == 1))
+            {
+                return true;
+            }
+            return false;
+        }
 
+    }
+
+    internal class Rook : Piece
+    {
+        public Rook(string type, Field field) : base(type, field)
+        {
+        }
+
+        protected override bool isMovePossible(Field newField)
+        {
+            if (!base.isMovePossible(newField))
+            {
+                return false;
+            }
+            if(Variables.board.isFreeBetween(field, newField, "vertically")|| Variables.board.isFreeBetween(field, newField, "horizontally"))
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    internal class Bishop : Piece
+    {
+        public Bishop(string type, Field field) : base(type, field)
+        {
+        }
+
+        protected override bool isMovePossible(Field newField)
+        {
+            if (!base.isMovePossible(newField))
+            {
+                return false;
+            }
+            if (Variables.board.isFreeBetween(field, newField, "diagonally"))
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    internal class Queen : Piece
+    {
+        public Queen(string type, Field field) : base(type, field)
+        {
+        }
+
+        protected override bool isMovePossible(Field newField)
+        {
+            if (!base.isMovePossible(newField))
+            {
+                return false;
+            }
+            if (Variables.board.isFreeBetween(field, newField))
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    internal class King : Piece
+    {
+        public King(string type, Field field) : base(type, field)
+        {
+        }
+
+        protected override bool isMovePossible(Field newField)
+        {
+            if (!base.isMovePossible(newField))
+            {
+                return false;
+            }
+            if ((Math.Abs(field.x - newField.x) <= 1 && Math.Abs(field.y - newField.y) <= 1))
+            {
+                return true;
+            }
+            return false;
+        }
+    }
 }
