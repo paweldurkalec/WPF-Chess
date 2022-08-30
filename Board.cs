@@ -149,13 +149,18 @@ namespace WPFChess
             piece.move(newField);
         }
 
-        private bool onBoard(int x, int y)
+        public bool onBoard(int x, int y)
         {
             if (x >= 1 && y >= 1 && x <= fields.GetLength(0) && y <= fields.GetLength(0))
             {
                 return true;
             }
             return false;
+        }
+
+        public Field getField(int x, int y)
+        {
+            return fields[x-1, y-1];
         }
 
         private int whichDiagonal(Field firstField, Field secondField)
@@ -302,6 +307,66 @@ namespace WPFChess
                 }
                 return false;
             }
+        }
+
+        /*public bool isKingAround(Field field, string color)
+        {
+            for(int i=field.x-1; i <= field.x + 1; i++)
+            {
+                for(int j=field.y-1; j <= field.y + 1; j++)
+                {
+                    if(onBoard(i, j))
+                    {
+                        if (fields[i - 1, j - 1].piece is not null)
+                        {
+                            if (fields[i - 1, j - 1].piece is King && fields[i - 1, j - 1].piece.color != color)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }*/
+
+        private Field getKing(string color)
+        {
+            foreach(Field field in fields)
+            {
+                if(field.piece is not null)
+                {
+                    if(field.piece is King && field.piece.color == color)
+                    {
+                        return field;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public bool isCheck(string color)
+        {
+            Field kingsField = getKing(color);
+            King king = (King)kingsField.piece;
+            kingsField.piece=null;
+
+            foreach(Field field in fields)
+            {
+                if (field.piece is not null)
+                {
+                    if (field.piece.color != color)
+                    {
+                        if (field.piece.canAttack(kingsField))
+                        {
+                            kingsField.piece = king;
+                            return true;
+                        }
+                    }
+                }
+            }
+            kingsField.piece = king;
+            return false;
         }
     }   
 }

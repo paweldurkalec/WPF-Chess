@@ -12,9 +12,9 @@ namespace WPFChess
         {
         }
 
-        protected override bool isMovePossible(Field newField)
+        public override bool isMovePossible(Field newField, bool checkMode = true)
         {
-            if (!base.isMovePossible(newField))
+            if (!base.isMovePossible(newField, checkMode))
             {
                 return false;
             }
@@ -24,6 +24,12 @@ namespace WPFChess
             }
 
             return false;
+        }
+        public override List<Field> getPossibleMoves()
+        {
+            List<Field> possibleMoves = new List<Field>();
+
+            return possibleMoves;
         }
     }
 }

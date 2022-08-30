@@ -20,6 +20,7 @@ namespace WPFChess
 
         public string color { get; set; }
 
+        protected bool firstMove;
 
         public Piece(string color, Field field)
         {
@@ -27,7 +28,8 @@ namespace WPFChess
             {
                 return;
             }
-            this.id = Variables.getNewId();
+            firstMove = true;
+            id = Variables.getNewId();
             this.color = color;
             this.field = field;
             image = new Image();
@@ -40,7 +42,12 @@ namespace WPFChess
             Variables.boardCanvas.Children.Add(image);
         }
 
-        protected virtual bool isMovePossible(Field newField)
+        public virtual bool canAttack(Field newField)
+        {
+            return isMovePossible(newField, false);
+        }
+
+        public virtual bool isMovePossible(Field newField, bool checkMode=true)
         {
             if (newField.piece != null)
             {
@@ -49,7 +56,25 @@ namespace WPFChess
                     return false;
                 }
             }
-            return true;
+            bool isCheck = false;
+            if (checkMode)
+            {
+                // temporary changes to check if king is under attack after move
+                Piece secondPiece = newField.piece;
+                Field oldField = field;
+                newField.piece = this;
+                field.piece = null;
+                field = newField;
+
+                isCheck = Variables.board.isCheck(color);
+
+                // restoring changes
+                field.piece = secondPiece;
+                field = oldField;
+                field.piece = this;
+            }
+
+            return !isCheck;
         }
 
         public void move(Field newField)
@@ -63,6 +88,7 @@ namespace WPFChess
             {
                 newField.piece.destroy();
             }
+            this.firstMove = false;
             newField.piece = this;
             field.piece = null;
             field = newField;
@@ -80,6 +106,8 @@ namespace WPFChess
             Canvas.SetLeft(image, field.xOnCanvas - image.Width / 2);
             Canvas.SetTop(image, field.yOnCanvas - image.Height / 2);
         }
+
+        public abstract List<Field> getPossibleMoves();
 
     }
 }

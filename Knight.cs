@@ -12,9 +12,9 @@ namespace WPFChess
         {
         }
 
-        protected override bool isMovePossible(Field newField)
+        public override bool isMovePossible(Field newField, bool checkMode = true)
         {
-            if (!base.isMovePossible(newField))
+            if (!base.isMovePossible(newField, checkMode))
             {
                 return false;
             }
@@ -25,6 +25,21 @@ namespace WPFChess
             }
             return false;
         }
-
+        public override List<Field> getPossibleMoves()
+        {
+            List<Field> possibleMoves = new List<Field>();
+            int[] offsets = new int[16] {-2, 1, -1, 2, 1, 2, 2, 1, 2, -1, 1, -2, -1, -2, -2, -1};
+            if (Variables.board.onBoard(field.x - 1, field.y + 1))
+            {
+                for (int i = 0; i < offsets.Length; i += 2)
+                {
+                    if (isMovePossible(Variables.board.getField(field.x + offsets[i], field.y + offsets[i+1])))
+                    {
+                        possibleMoves.Add(Variables.board.getField(field.x + offsets[i], field.y + offsets[i + 1]));
+                    }
+                }
+            }
+            return possibleMoves;
+        }
     }
 }
