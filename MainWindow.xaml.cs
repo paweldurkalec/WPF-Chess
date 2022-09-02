@@ -33,7 +33,7 @@ namespace WPFChess
         {
             InitializeComponent();
             handler = MouseMove;
-            board = new Board(100, 100, 0, boardCanvas, new MouseMoveEventHandler(MouseMove));
+            board = new Board(100, 100, 8, 0, boardCanvas, new MouseMoveEventHandler(MouseMove));
         }
         
         
@@ -46,7 +46,7 @@ namespace WPFChess
                 Image image = sender as Image;
                 dragOffsetX = e.GetPosition(boardCanvas).X - Canvas.GetLeft(image);
                 dragOffsetY = e.GetPosition(boardCanvas).Y - Canvas.GetTop(image);
-                //Piece piece = board.findPieceById(image.Name);
+                board.showMoves(image);
                 DragDrop.DoDragDrop(image, image, DragDropEffects.Move);
             }
         }

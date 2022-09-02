@@ -8,7 +8,7 @@ namespace WPFChess
 {
     internal class Rook : Piece
     {
-        public Rook(string type, Field field) : base(type, field)
+        public Rook(string type, Field field, int z = 2) : base(type, field, z)
         {
         }
 
@@ -29,7 +29,23 @@ namespace WPFChess
         public override List<Field> getPossibleMoves()
         {
             List<Field> possibleMoves = new List<Field>();
-
+            for(int i=1; i<=Variables.widthOfBoard; i++)
+            {
+                if(Variables.board.onBoard(field.x, i))
+                {
+                    if (isMovePossible(Variables.board.getField(i, field.y)))
+                    {
+                        possibleMoves.Add(Variables.board.getField(i, field.y));
+                    }
+                }
+                if (Variables.board.onBoard(field.x, i))
+                {
+                    if (isMovePossible(Variables.board.getField(field.x, i)))
+                    {
+                        possibleMoves.Add(Variables.board.getField(field.x, i));
+                    }
+                }
+            }
             return possibleMoves;
         }
     }

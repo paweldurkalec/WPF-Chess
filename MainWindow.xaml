@@ -13,6 +13,7 @@
             Background="Transparent"
             DragOver="canvas_DragOver"
             Drop="Canvas_Drop">
+            <Rectangle Height="7" Canvas.Left="-380" Stroke="Black" Canvas.Top="464" Width="24"/>
         </Canvas>
     </Border>
 </Window>

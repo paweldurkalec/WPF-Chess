@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
 namespace WPFChess
 {
@@ -16,7 +18,11 @@ namespace WPFChess
         public static Canvas? boardCanvas;
         public static Board? board;
         public static WPFChess.MainWindow.MouseMoveEventHandler? mouseHandler;
+        public static int sizeOfOffset;
+        public static int sizeOfField;
         private static string lastID = "a";
+        public static int widthOfBoard;
+        public static int heightOfBoard;
 
         public static Dictionary<string, string> piecePaths = new Dictionary<string, string>()
         {
@@ -52,27 +58,35 @@ namespace WPFChess
 
         private Field[,] fields;
 
-        public Board(int sizeOfField, int sizeOfOffset, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler handler)
-        {
-            this.initializeBoard(boardCanvas, handler);
-            this.initalizeFields(sizeOfField, sizeOfOffset, setup);
-        }
+        public Piece duringPromotion;
 
-        private void initializeBoard(Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler handler)
+        public Board(int sizeOfField, int sizeOfOffset, int sizeOfBoard, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler handler)
         {
+            Variables.sizeOfOffset = sizeOfOffset;
+            Variables.sizeOfField = sizeOfField;
+            Variables.widthOfBoard = sizeOfBoard;
+            Variables.heightOfBoard = sizeOfBoard;
             Variables.boardCanvas = boardCanvas;
             Variables.mouseHandler = handler;
             Variables.board = this;
+            duringPromotion = null;
+            this.initializeBoard(boardCanvas, handler, sizeOfBoard);
+            this.initalizeFields(sizeOfField, sizeOfOffset, setup);            
+        }
+
+        private void initializeBoard(Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler handler, int sizeOfBoard)
+        {          
+            fields = new Field[sizeOfBoard, sizeOfBoard];
             Image boardImage = new Image();
             boardImage.Source = new BitmapImage(new Uri("static/Board2.jpg", UriKind.Relative));
+            Panel.SetZIndex(boardImage, 0);
             Canvas.SetLeft(boardImage, 0);
             Canvas.SetTop(boardImage, 0);
             boardCanvas.Children.Add(boardImage);
         }
 
         private void initalizeFields(int sizeOfField, int sizeOfOffset, int setup)
-        {
-            fields = new Field[8, 8];
+        {          
             int height = sizeOfOffset + (fields.GetLength(0) - 1) * sizeOfField + (sizeOfField / 2);
             int width = sizeOfOffset + (sizeOfField / 2);
             for (int i = 0; i < fields.GetLength(0); i++)
@@ -147,11 +161,12 @@ namespace WPFChess
             Piece piece = findPieceById(img.Name);
             Field newField = findNearestField(point.X, point.Y);
             piece.move(newField);
+            hideAllRectangles();
         }
 
         public bool onBoard(int x, int y)
         {
-            if (x >= 1 && y >= 1 && x <= fields.GetLength(0) && y <= fields.GetLength(0))
+            if (x >= 1 && y >= 1 && x <= fields.GetLength(0) && y <= fields.GetLength(1))
             {
                 return true;
             }
@@ -309,26 +324,21 @@ namespace WPFChess
             }
         }
 
-        /*public bool isKingAround(Field field, string color)
+        public void hideAllRectangles()
         {
-            for(int i=field.x-1; i <= field.x + 1; i++)
+            for(int i=0; i<fields.GetLength(0); i++)
             {
-                for(int j=field.y-1; j <= field.y + 1; j++)
+                for(int j=0; j<fields.GetLength(1); j++)
                 {
-                    if(onBoard(i, j))
-                    {
-                        if (fields[i - 1, j - 1].piece is not null)
-                        {
-                            if (fields[i - 1, j - 1].piece is King && fields[i - 1, j - 1].piece.color != color)
-                            {
-                                return true;
-                            }
-                        }
-                    }
+                    fields[i, j].hideRectangle();
                 }
             }
-            return false;
-        }*/
+        }
+
+        public void showMoves(Image image)
+        {
+            findPieceById(image.Name).showPossibleMoves();
+        }
 
         private Field getKing(string color)
         {
@@ -368,5 +378,5 @@ namespace WPFChess
             kingsField.piece = king;
             return false;
         }
-    }   
+    }
 }

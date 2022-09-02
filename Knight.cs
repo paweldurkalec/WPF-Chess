@@ -8,7 +8,7 @@ namespace WPFChess
 {
     internal class Knight : Piece
     {
-        public Knight(string type, Field field) : base(type, field)
+        public Knight(string type, Field field, int z=2) : base(type, field, z)
         {
         }
 
@@ -29,11 +29,11 @@ namespace WPFChess
         {
             List<Field> possibleMoves = new List<Field>();
             int[] offsets = new int[16] {-2, 1, -1, 2, 1, 2, 2, 1, 2, -1, 1, -2, -1, -2, -2, -1};
-            if (Variables.board.onBoard(field.x - 1, field.y + 1))
+            for (int i = 0; i < offsets.Length; i += 2)
             {
-                for (int i = 0; i < offsets.Length; i += 2)
+                if (Variables.board.onBoard(field.x + offsets[i], field.y + offsets[i + 1]))
                 {
-                    if (isMovePossible(Variables.board.getField(field.x + offsets[i], field.y + offsets[i+1])))
+                    if (isMovePossible(Variables.board.getField(field.x + offsets[i], field.y + offsets[i + 1])))
                     {
                         possibleMoves.Add(Variables.board.getField(field.x + offsets[i], field.y + offsets[i + 1]));
                     }

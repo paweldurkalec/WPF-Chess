@@ -8,7 +8,7 @@ namespace WPFChess
 {
     internal class King : Piece
     {
-        public King(string type, Field field) : base(type, field)
+        public King(string type, Field field, int z = 2) : base(type, field, z)
         {
         }
 
@@ -27,7 +27,19 @@ namespace WPFChess
         public override List<Field> getPossibleMoves()
         {
             List<Field> possibleMoves = new List<Field>();
-
+            for (int i = field.x - 1; i <= field.x + 1; i++)
+            {
+                for (int j = field.y - 1; j <= field.y + 1; j++)
+                {
+                    if (Variables.board.onBoard(i, j))
+                    {
+                        if (isMovePossible(Variables.board.getField(i, j)))
+                        {
+                            possibleMoves.Add(Variables.board.getField(i, j));
+                        }
+                    }
+                }
+            }
             return possibleMoves;
         }
     }

@@ -22,9 +22,9 @@ namespace WPFChess
 
         protected bool firstMove;
 
-        public Piece(string color, Field field)
+        public Piece(string color, Field field, int z=2)
         {
-            if (!Variables.board.placePiece(this, field.x, field.y))
+            if (!Variables.board.placePiece(this, field.x, field.y) && !(field.x==-1))
             {
                 return;
             }
@@ -34,6 +34,7 @@ namespace WPFChess
             this.field = field;
             image = new Image();
             image.Source = new BitmapImage(new Uri(Variables.piecePaths[this.GetType().Name + "_" + this.color], UriKind.Relative));
+            Panel.SetZIndex(image, z);
             image.Name = id;
             image.Width = 50;
             image.Height = 80;
@@ -77,7 +78,7 @@ namespace WPFChess
             return !isCheck;
         }
 
-        public void move(Field newField)
+        public virtual void move(Field newField)
         {
             if (!isMovePossible(newField))
             {
@@ -107,7 +108,19 @@ namespace WPFChess
             Canvas.SetTop(image, field.yOnCanvas - image.Height / 2);
         }
 
-        public abstract List<Field> getPossibleMoves();
+        public void showPossibleMoves()
+        {
+            List<Field> possibleMoves = getPossibleMoves();
+            foreach(Field possibleMove in possibleMoves)
+            {
+                possibleMove.showRectangle();
+            }
+        }
+
+        public virtual List<Field> getPossibleMoves()
+        {
+            return null;
+        }
 
     }
 }

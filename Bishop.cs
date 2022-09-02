@@ -8,7 +8,7 @@ namespace WPFChess
 {
     internal class Bishop : Piece
     {
-        public Bishop(string type, Field field) : base(type, field)
+        public Bishop(string type, Field field, int z = 2) : base(type, field, z)
         {
         }
 
@@ -28,7 +28,54 @@ namespace WPFChess
         public override List<Field> getPossibleMoves()
         {
             List<Field> possibleMoves = new List<Field>();
-
+            //right up
+            int i = field.x;
+            int j = field.y;
+            while (Variables.board.onBoard(i, j))
+            {
+                if (isMovePossible(Variables.board.getField(i,j)))
+                {
+                    possibleMoves.Add(Variables.board.getField(i,j));
+                }
+                i++;
+                j++;
+            }
+            //right down
+            i = field.x;
+            j = field.y;
+            while (Variables.board.onBoard(i, j))
+            {
+                if (isMovePossible(Variables.board.getField(i, j)))
+                {
+                    possibleMoves.Add(Variables.board.getField(i, j));
+                }
+                i++;
+                j--;
+            }
+            //left down
+            i = field.x;
+            j = field.y;
+            while (Variables.board.onBoard(i, j))
+            {
+                if (isMovePossible(Variables.board.getField(i, j)))
+                {
+                    possibleMoves.Add(Variables.board.getField(i, j));
+                }
+                i--;
+                j--;
+            }
+            //left up
+            i = field.x;
+            j = field.y;
+            while (Variables.board.onBoard(i, j))
+            {
+                if (isMovePossible(Variables.board.getField(i, j)))
+                {
+                    possibleMoves.Add(Variables.board.getField(i, j));
+                }
+                i--;
+                j++;
+            }
             return possibleMoves;
         }
     }
