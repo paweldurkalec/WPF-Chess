@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPFChess"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1000" Width="1000">
-    <Border BorderBrush="Black" BorderThickness="3">
+        WindowStartupLocation="CenterScreen"
+        Title="WPFChess" Height="1038" Width="1300">
+    <Border Background="LightGray">
         <Canvas
             x:Name="boardCanvas"
             AllowDrop="True" 

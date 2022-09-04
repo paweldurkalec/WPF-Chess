@@ -17,7 +17,8 @@ namespace WPFChess
     {
         public static Canvas? boardCanvas;
         public static Board? board;
-        public static WPFChess.MainWindow.MouseMoveEventHandler? mouseHandler;
+        public static WPFChess.MainWindow.MouseMoveEventHandler? dragHandler;
+        public static WPFChess.MainWindow.MouseMoveEventHandler? clickHandler;
         public static int sizeOfOffset;
         public static int sizeOfField;
         private static string lastID = "a";
@@ -60,21 +61,25 @@ namespace WPFChess
 
         public Piece duringPromotion;
 
-        public Board(int sizeOfField, int sizeOfOffset, int sizeOfBoard, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler handler)
+        private string onMove;
+
+        public Board(int sizeOfField, int sizeOfOffset, int sizeOfBoard, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler dragHandler, WPFChess.MainWindow.MouseMoveEventHandler clickHandler)
         {
             Variables.sizeOfOffset = sizeOfOffset;
             Variables.sizeOfField = sizeOfField;
             Variables.widthOfBoard = sizeOfBoard;
             Variables.heightOfBoard = sizeOfBoard;
             Variables.boardCanvas = boardCanvas;
-            Variables.mouseHandler = handler;
+            Variables.dragHandler = dragHandler;
+            Variables.clickHandler = clickHandler;
             Variables.board = this;
             duringPromotion = null;
-            this.initializeBoard(boardCanvas, handler, sizeOfBoard);
+            onMove = "white";
+            this.initializeBoard(boardCanvas, sizeOfBoard);
             this.initalizeFields(sizeOfField, sizeOfOffset, setup);            
         }
 
-        private void initializeBoard(Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler handler, int sizeOfBoard)
+        private void initializeBoard(Canvas boardCanvas, int  sizeOfBoard)
         {          
             fields = new Field[sizeOfBoard, sizeOfBoard];
             Image boardImage = new Image();
@@ -130,6 +135,27 @@ namespace WPFChess
             new King("black", fields[4, 7]);
         }
 
+        public void changeTurn()
+        {
+            if (onMove == "white")
+            {
+                onMove = "black";
+            }
+            else
+            {
+                onMove = "white";
+            }
+        }
+
+        public bool rightTurn(Image image)
+        {
+            if(findPieceById(image.Name).color == onMove)
+            {
+                return true;
+            }
+            return false;
+        }
+
         public bool placePiece(Piece piece, int x, int y)
         {
             if (onBoard(x, y))
@@ -158,9 +184,17 @@ namespace WPFChess
 
         public void dropPiece(Image img, Point point)
         {
-            Piece piece = findPieceById(img.Name);
-            Field newField = findNearestField(point.X, point.Y);
-            piece.move(newField);
+            if (duringPromotion == null)
+            {
+                Piece piece = findPieceById(img.Name);
+                Field newField = findNearestField(point.X, point.Y);
+                piece.move(newField);
+            }
+            else
+            {
+                Pawn pawn = (Pawn)duringPromotion;
+                pawn.endPromotion(img);
+            }
             hideAllRectangles();
         }
 
@@ -337,7 +371,10 @@ namespace WPFChess
 
         public void showMoves(Image image)
         {
-            findPieceById(image.Name).showPossibleMoves();
+            if (duringPromotion == null)
+            {
+                findPieceById(image.Name).showPossibleMoves();
+            }
         }
 
         private Field getKing(string color)

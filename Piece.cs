@@ -24,9 +24,9 @@ namespace WPFChess
 
         public Piece(string color, Field field, int z=2)
         {
-            if (!Variables.board.placePiece(this, field.x, field.y) && !(field.x==-1))
+            if (!(field.x==-1))
             {
-                return;
+                Variables.board.placePiece(this, field.x, field.y);
             }
             firstMove = true;
             id = Variables.getNewId();
@@ -39,8 +39,14 @@ namespace WPFChess
             image.Width = 50;
             image.Height = 80;
             updateImage();
-            image.MouseMove += new MouseEventHandler(Variables.mouseHandler);
+            image.MouseMove += new MouseEventHandler(Variables.dragHandler);
+            image.MouseDown += new MouseButtonEventHandler(Variables.clickHandler);
             Variables.boardCanvas.Children.Add(image);
+        }
+
+        public void setZIndex(int z)
+        {
+            Panel.SetZIndex(image, z);
         }
 
         public virtual bool canAttack(Field newField)
@@ -89,6 +95,7 @@ namespace WPFChess
             {
                 newField.piece.destroy();
             }
+            Variables.board.changeTurn();
             this.firstMove = false;
             newField.piece = this;
             field.piece = null;

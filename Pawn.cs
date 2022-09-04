@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -12,6 +13,8 @@ namespace WPFChess
 {
     internal class Pawn : Piece
     {
+
+        private Field[] promotionFields;
 
         public Pawn(string type, Field field, int z = 2) : base(type, field, z)
         {
@@ -63,17 +66,65 @@ namespace WPFChess
             Canvas.SetTop(promotionImage, promotionImageY);
             Variables.boardCanvas.Children.Add(promotionImage);
 
-            Field[] promotionFields = new Field[4];
+            promotionFields = new Field[4];
             int temp = 0;
             for (int j = 1; j < 5; j++)
             {
                 promotionFields[j-1] = new Field(-1, -1, promotionImageX+temp+Variables.sizeOfField/2, promotionImageY+Variables.sizeOfField / 2, null);
                 temp += Variables.sizeOfField;
             }               
-            new Rook(color, promotionFields[0],5);
-            new Knight(color, promotionFields[1],5);
-            new Bishop(color, promotionFields[2],5);
-            new Queen(color, promotionFields[3],5);
+            promotionFields[0].piece = new Rook(color, promotionFields[0],5);
+            promotionFields[1].piece = new Knight(color, promotionFields[1],5);
+            promotionFields[2].piece = new Bishop(color, promotionFields[2],5);
+            promotionFields[3].piece = new Queen(color, promotionFields[3],5);
+        }
+
+        public void endPromotion(Image img)
+        {
+            string id = img.Name;
+            var partialResult = from Field field in promotionFields group field by new { piece = field.piece } into p where p.Key.piece is not null select p.Key.piece;
+            var result = from item in partialResult where item.id == id select item;
+            Piece newPiece = result.First();
+
+            this.field.piece = newPiece;
+            newPiece.field = this.field;
+            newPiece.updateImage();
+            newPiece.setZIndex(2);
+            Variables.boardCanvas.Children.Remove(image);
+            Variables.board.duringPromotion = null;
+            for (int i = 0; i < 4; i++)
+            {
+                if (promotionFields[i].piece != newPiece)
+                {
+                    Variables.boardCanvas.Children.Remove(promotionFields[i].piece.image);
+                }
+                promotionFields[i] = null;
+            }
+            promotionFields = null;
+            for (int i = 0; i < 2; i++)
+            {
+                foreach (UIElement child in Variables.boardCanvas.Children)
+                {
+                    if (child is Image)
+                    {
+                        Image image = (Image)child;
+                        if (image.Name == "promotionImage" || image.Name == "promotionBackground")
+                        {
+                            Variables.boardCanvas.Children.Remove(image);
+                            break;
+                        }
+                    }
+                    else if (child is Rectangle)
+                    {
+                        Rectangle rect = (Rectangle)child;
+                        if (rect.Name == "promotionImage" || rect.Name == "promotionBackground")
+                        {
+                            Variables.boardCanvas.Children.Remove(rect);
+                            break;
+                        }
+                    }
+                }
+            }
 
         }
 

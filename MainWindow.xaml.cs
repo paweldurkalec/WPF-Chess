@@ -26,14 +26,12 @@ namespace WPFChess
         private double dragOffsetY = 0;
         private object dragItem = null;
         public delegate void MouseMoveEventHandler(object sender, MouseEventArgs e);
-        private static Delegate handler { get; set; }
         private Board board;
 
         public MainWindow()
         {
             InitializeComponent();
-            handler = MouseMove;
-            board = new Board(100, 100, 8, 0, boardCanvas, new MouseMoveEventHandler(MouseMove));
+            board = new Board(100, 100, 8, 0, boardCanvas, new MouseMoveEventHandler(MouseMove), new MouseMoveEventHandler(MouseClick));
         }
         
         
@@ -42,12 +40,26 @@ namespace WPFChess
 
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                dragItem = sender;
-                Image image = sender as Image;
-                dragOffsetX = e.GetPosition(boardCanvas).X - Canvas.GetLeft(image);
-                dragOffsetY = e.GetPosition(boardCanvas).Y - Canvas.GetTop(image);
-                board.showMoves(image);
-                DragDrop.DoDragDrop(image, image, DragDropEffects.Move);
+                if (board.duringPromotion == null)
+                {
+                    dragItem = sender;
+                    Image image = sender as Image;
+                    if (board.rightTurn(image))
+                    {
+                        dragOffsetX = e.GetPosition(boardCanvas).X - Canvas.GetLeft(image);
+                        dragOffsetY = e.GetPosition(boardCanvas).Y - Canvas.GetTop(image);
+                        board.showMoves(image);
+                        DragDrop.DoDragDrop(image, image, DragDropEffects.Move);
+                    }
+                }
+            }
+        }
+
+        private void MouseClick(object sender, MouseEventArgs e)
+        {
+            if (board.duringPromotion != null)
+            {
+                board.dropPiece(sender as Image, new Point());
             }
         }
 
