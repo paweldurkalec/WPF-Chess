@@ -63,6 +63,10 @@ namespace WPFChess
 
         private string onMove;
 
+        Timer timerWhite;
+
+        Timer timerBlack;
+
         public Board(int sizeOfField, int sizeOfOffset, int sizeOfBoard, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler dragHandler, WPFChess.MainWindow.MouseMoveEventHandler clickHandler)
         {
             Variables.sizeOfOffset = sizeOfOffset;
@@ -73,10 +77,14 @@ namespace WPFChess
             Variables.dragHandler = dragHandler;
             Variables.clickHandler = clickHandler;
             Variables.board = this;
+            this.boardCanvas = boardCanvas;
             duringPromotion = null;
             onMove = "white";
             this.initializeBoard(boardCanvas, sizeOfBoard);
-            this.initalizeFields(sizeOfField, sizeOfOffset, setup);            
+            this.initalizeFields(sizeOfField, sizeOfOffset, setup);
+            timerWhite = new Timer(500, new System.Drawing.Point(1100, 700), "White");
+            timerWhite.start();
+            timerBlack = new Timer(500, new System.Drawing.Point(1100, 200), "Black");
         }
 
         private void initializeBoard(Canvas boardCanvas, int  sizeOfBoard)
@@ -140,10 +148,14 @@ namespace WPFChess
             if (onMove == "white")
             {
                 onMove = "black";
+                timerWhite.stop();
+                timerBlack.start();
             }
             else
             {
                 onMove = "white";
+                timerBlack.stop();
+                timerWhite.start();
             }
         }
 
@@ -184,18 +196,101 @@ namespace WPFChess
 
         public void dropPiece(Image img, Point point)
         {
+            Piece piece = findPieceById(img.Name);
             if (duringPromotion == null)
             {
-                Piece piece = findPieceById(img.Name);
+                
                 Field newField = findNearestField(point.X, point.Y);
                 piece.move(newField);
             }
             else
             {
                 Pawn pawn = (Pawn)duringPromotion;
+                piece = pawn;
                 pawn.endPromotion(img);
             }
             hideAllRectangles();
+            int result = checkEnd(piece);
+            if (result == 1)
+            {
+                endGame(result, piece.color);
+            }
+            else if (result == 2)
+            {
+                endGame(result);
+            }
+        }
+
+        private void endGame(int mode, string color="draw")
+        {
+            //boardCanvas.Children.Clear();
+            Label label = new Label()
+            {
+                FontFamily = new FontFamily("Arial Black"),
+                FontSize = 40,
+                Foreground = Brushes.WhiteSmoke
+            };
+            if (mode == 1)
+            {
+                label.Content = color + " wins";
+            }
+            else
+            {
+                label.Content = "draw";
+            }
+            Panel.SetZIndex(label, 4);
+            boardCanvas.Children.Add(label);
+            Canvas.SetTop(label, (Variables.heightOfBoard * Variables.sizeOfField + 2 * Variables.sizeOfOffset) / 2 - label.ActualHeight / 2);
+            Canvas.SetLeft(label, (Variables.heightOfBoard * Variables.sizeOfField + 2 * Variables.sizeOfOffset) / 2 - label.ActualWidth / 2);
+        }
+
+        // 0->play, 1->win, 2->draw
+        public int checkEnd(Piece piece)
+        {
+            List<Field> moves;
+            string color;
+            if (piece.color == "white")
+            {
+                color = "black";
+            }
+            else
+            {
+                color = "white";
+            }
+            moves = getAllMoves(color);
+            if (moves.Count == 0)
+            {
+                if (isCheck(color))
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 2;
+                }
+            }
+            return 3;
+        }
+
+        private List<Field> getAllMoves(string color)
+        {
+            List<Field> result = new List<Field>();
+
+            for (int i = 0; i < fields.GetLength(0); i++)
+            {
+                for (int j = 0; j < fields.GetLength(1); j++)
+                {
+                    if (fields[i, j].piece != null)
+                    {
+                        if (fields[i, j].piece.color == color)
+                        {
+                            result.AddRange(fields[i, j].piece.getPossibleMoves());
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         public bool onBoard(int x, int y)
