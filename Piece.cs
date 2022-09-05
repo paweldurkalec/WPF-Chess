@@ -94,13 +94,13 @@ namespace WPFChess
             if (newField.piece != null)
             {
                 newField.piece.destroy();
-            }
-            Variables.board.changeTurn();
+            }            
             this.firstMove = false;
             newField.piece = this;
             field.piece = null;
             field = newField;
             updateImage();
+            Variables.board.changeTurn();
         }
 
         public void destroy()

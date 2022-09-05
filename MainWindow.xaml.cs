@@ -31,6 +31,7 @@ namespace WPFChess
         public MainWindow()
         {
             InitializeComponent();
+            Variables.autoRotation = autoRotation;
             board = new Board(100, 100, 8, 0, boardCanvas, new MouseMoveEventHandler(MouseMove), new MouseMoveEventHandler(MouseClick));
         }
         
@@ -76,6 +77,11 @@ namespace WPFChess
             Image image = dragItem as Image;
             Canvas.SetLeft(image, dropPosition.X - dragOffsetX);
             Canvas.SetTop(image, dropPosition.Y - dragOffsetY);
+        }
+
+        private void rotate_Click(object sender, RoutedEventArgs e)
+        {
+            Variables.board.rotateBoard();
         }
     }
 }

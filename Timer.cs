@@ -22,10 +22,12 @@ namespace WPFChess
         Label content;
         Ellipse circleAround;
         TimeSpan time;
+        public bool ended;
 
         public Timer(int seconds, Point position, string name)
         {
             this.position = position;
+            ended = false;
             dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(Tick);
             dispatcherTimer.Interval += new TimeSpan(0, 0, 0, 0, 1);
@@ -80,6 +82,11 @@ namespace WPFChess
                 TimeSpan ts = stopwatch.Elapsed;
                 stopwatch.Restart();
                 time = time - ts;              
+            }
+            if (time <= new TimeSpan(0, 0, 0, 0, 0))
+            {
+                time = new TimeSpan(0, 0, 0, 0, 0);
+                ended = true;
             }
             content.Content = String.Format("{0:00}:{1:00}",
                     time.Minutes, time.Seconds);

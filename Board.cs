@@ -9,49 +9,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace WPFChess
 {
 
-    internal static class Variables
-    {
-        public static Canvas? boardCanvas;
-        public static Board? board;
-        public static WPFChess.MainWindow.MouseMoveEventHandler? dragHandler;
-        public static WPFChess.MainWindow.MouseMoveEventHandler? clickHandler;
-        public static int sizeOfOffset;
-        public static int sizeOfField;
-        private static string lastID = "a";
-        public static int widthOfBoard;
-        public static int heightOfBoard;
-
-        public static Dictionary<string, string> piecePaths = new Dictionary<string, string>()
-        {
-            { "Pawn_white", "static/pawn_w.png" },
-            { "Pawn_black", "static/pawn_b.png" },
-            { "Knight_white", "static/knight_w.png" },
-            { "Knight_black", "static/knight_b.png" },
-            { "Bishop_white", "static/bishop_w.png" },
-            { "Bishop_black", "static/bishop_b.png" },
-            { "Rook_white", "static/rook_w.png" },
-            { "Rook_black", "static/rook_b.png" },
-            { "King_white", "static/king_w.png" },
-            { "King_black", "static/king_b.png" },
-            { "Queen_white", "static/queen_w.png" },
-            { "Queen_black", "static/queen_b.png" }
-        };
-
-        public static string getNewId()
-        {
-            lastID = lastID + lastID[0];
-
-            if(lastID.Length > 10)
-            {
-                lastID = Convert.ToChar(lastID[0] + 1).ToString();
-            }
-            return lastID;
-        }
-    }
+    
 
     internal class Board
     {
@@ -67,6 +30,10 @@ namespace WPFChess
 
         Timer timerBlack;
 
+        DispatcherTimer timersControl;
+
+        public bool rotated;
+
         public Board(int sizeOfField, int sizeOfOffset, int sizeOfBoard, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler dragHandler, WPFChess.MainWindow.MouseMoveEventHandler clickHandler)
         {
             Variables.sizeOfOffset = sizeOfOffset;
@@ -77,21 +44,26 @@ namespace WPFChess
             Variables.dragHandler = dragHandler;
             Variables.clickHandler = clickHandler;
             Variables.board = this;
+            rotated = false;
+            timersControl = new DispatcherTimer();
+            timersControl.Tick += new EventHandler(checkTimers);
+            timersControl.Interval += new TimeSpan(0, 0, 0, 1);
+            timersControl.Start();
             this.boardCanvas = boardCanvas;
             duringPromotion = null;
             onMove = "white";
             this.initializeBoard(boardCanvas, sizeOfBoard);
             this.initalizeFields(sizeOfField, sizeOfOffset, setup);
-            timerWhite = new Timer(500, new System.Drawing.Point(1100, 700), "White");
+            timerWhite = new Timer(500, new System.Drawing.Point(1030, 100), "White");
             timerWhite.start();
-            timerBlack = new Timer(500, new System.Drawing.Point(1100, 200), "Black");
+            timerBlack = new Timer(500, new System.Drawing.Point(1170, 100), "Black");
         }
 
         private void initializeBoard(Canvas boardCanvas, int  sizeOfBoard)
         {          
             fields = new Field[sizeOfBoard, sizeOfBoard];
             Image boardImage = new Image();
-            boardImage.Source = new BitmapImage(new Uri("static/Board2.jpg", UriKind.Relative));
+            boardImage.Source = new BitmapImage(new Uri("static/board.jpg", UriKind.Relative));
             Panel.SetZIndex(boardImage, 0);
             Canvas.SetLeft(boardImage, 0);
             Canvas.SetTop(boardImage, 0);
@@ -143,6 +115,18 @@ namespace WPFChess
             new King("black", fields[4, 7]);
         }
 
+        private void checkTimers(object sender, EventArgs e)
+        {
+            if (timerWhite.ended)
+            {
+                endGame(1, "black");
+            }
+            else if (timerBlack.ended)
+            {
+                endGame(1, "white");
+            }
+        }
+
         public void changeTurn()
         {
             if (onMove == "white")
@@ -157,6 +141,54 @@ namespace WPFChess
                 timerBlack.stop();
                 timerWhite.start();
             }
+            if (Variables.autoRotation.IsChecked ?? false)
+            {
+                rotateBoard();
+            }
+        }
+
+        public string getSecondColor(string color)
+        {
+            if (color == "white")
+            {
+                return "black";
+            }
+            else
+            {
+                return "white";
+            }
+        }
+
+        public void rotateBoard()
+        {
+            for (int i = 0; i < fields.GetLength(0); i++)
+            {
+                for (int j = 0; j < fields.GetLength(1)/2; j++)
+                {
+                    Piece temp = fields[i, j].piece;
+                    fields[i, j].piece = fields[fields.GetLength(0) - i - 1, fields.GetLength(1) - j - 1].piece;
+                    fields[fields.GetLength(0) - i - 1, fields.GetLength(1) - j - 1].piece = temp;
+                    if (fields[i, j].piece != null)
+                    {
+                        fields[i, j].piece.field = fields[i, j];
+                    }
+                    if (fields[fields.GetLength(0) - i - 1, fields.GetLength(1) - j - 1].piece != null)
+                    {
+                        fields[fields.GetLength(0) - i - 1, fields.GetLength(1) - j - 1].piece.field = fields[fields.GetLength(0) - i - 1, fields.GetLength(1) - j - 1];
+                    }            
+                }
+            }
+            for (int i = 0; i < fields.GetLength(0); i++)
+            {
+                for (int j = 0; j < fields.GetLength(1); j++)
+                {
+                    if (fields[i, j].piece != null)
+                    {
+                        fields[i, j].piece.updateImage();
+                    }                
+                }
+            }
+            rotated = !rotated;
         }
 
         public bool rightTurn(Image image)
@@ -228,7 +260,7 @@ namespace WPFChess
             {
                 FontFamily = new FontFamily("Arial Black"),
                 FontSize = 40,
-                Foreground = Brushes.WhiteSmoke
+                Foreground = Brushes.DarkGray
             };
             if (mode == 1)
             {
@@ -240,9 +272,11 @@ namespace WPFChess
             }
             Panel.SetZIndex(label, 4);
             boardCanvas.Children.Add(label);
-            Canvas.SetTop(label, (Variables.heightOfBoard * Variables.sizeOfField + 2 * Variables.sizeOfOffset) / 2 - label.ActualHeight / 2);
-            Canvas.SetLeft(label, (Variables.heightOfBoard * Variables.sizeOfField + 2 * Variables.sizeOfOffset) / 2 - label.ActualWidth / 2);
+            Canvas.SetTop(label, (Variables.heightOfBoard * Variables.sizeOfField + 2 * Variables.sizeOfOffset) / 2 - 30);
+            //Canvas.SetLeft(label, (Variables.heightOfBoard * Variables.sizeOfField + 2 * Variables.sizeOfOffset) / 2 - label.ActualWidth / 2);
+            Canvas.SetRight(label, 17);
         }
+
 
         // 0->play, 1->win, 2->draw
         public int checkEnd(Piece piece)

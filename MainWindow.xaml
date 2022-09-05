@@ -14,7 +14,16 @@
             Background="Transparent"
             DragOver="canvas_DragOver"
             Drop="Canvas_Drop">
-            <Rectangle Height="7" Canvas.Left="-380" Stroke="Black" Canvas.Top="464" Width="24"/>
+            <CheckBox x:Name="autoRotation" Content="Auto rotation" Canvas.Left="1008" Canvas.Top="198" Height="20" Width="94" FontSize="12" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <CheckBox.LayoutTransform>
+                    <ScaleTransform ScaleX="3" ScaleY="3"/>
+                </CheckBox.LayoutTransform>
+            </CheckBox>
+            <Button x:Name="Rotate" Content="Rotate" Click="rotate_Click" Canvas.Left="1017" Canvas.Top="263" HorizontalAlignment="Left" VerticalAlignment="Top" Width="88">
+                <Button.LayoutTransform>
+                    <ScaleTransform ScaleX="3" ScaleY="3"/>
+                </Button.LayoutTransform>
+            </Button>
         </Canvas>
     </Border>
 </Window>

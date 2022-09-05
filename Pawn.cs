@@ -130,6 +130,15 @@ namespace WPFChess
 
         public override bool canAttack(Field newField)
         {
+            string color;
+            if (Variables.board.rotated)
+            {
+                color = Variables.board.getSecondColor(this.color);
+            }
+            else
+            {
+                color = this.color;
+            }
             if (!base.isMovePossible(newField, false))
             {
                 return false;
@@ -149,6 +158,15 @@ namespace WPFChess
 
         public override bool isMovePossible(Field newField, bool checkMode = true)
         {
+            string color;
+            if (Variables.board.rotated)
+            {
+                color = Variables.board.getSecondColor(this.color);
+            }
+            else
+            {
+                color = this.color;
+            }
             if (!base.isMovePossible(newField, checkMode))
             {
                 return false;
@@ -197,7 +215,16 @@ namespace WPFChess
 
         public override List<Field> getPossibleMoves()
         {
-            List<Field> possibleMoves = new List<Field>();  
+            List<Field> possibleMoves = new List<Field>();
+            string color;
+            if (Variables.board.rotated)
+            {
+                color = Variables.board.getSecondColor(this.color);
+            }
+            else
+            {
+                color = this.color;
+            }
             if (color == "white")
             {
                 if (Variables.board.onBoard(field.x - 1, field.y + 1))
