@@ -24,6 +24,16 @@
                     <ScaleTransform ScaleX="3" ScaleY="3"/>
                 </Button.LayoutTransform>
             </Button>
+            <Button x:Name="prev_button" Click="prev_button_Click" Content="Prev" Canvas.Left="1017" Canvas.Top="352" HorizontalAlignment="Left" VerticalAlignment="Top" Width="35">
+                <Button.LayoutTransform>
+                    <ScaleTransform ScaleX="3" ScaleY="3"/>
+                </Button.LayoutTransform>
+            </Button>
+            <Button x:Name="next_button" Content="Next" Click="next_button_Click" Canvas.Left="1176" Canvas.Top="352" HorizontalAlignment="Left" VerticalAlignment="Top" Width="35">
+                <Button.LayoutTransform>
+                    <ScaleTransform ScaleX="3" ScaleY="3"/>
+                </Button.LayoutTransform>
+            </Button>
         </Canvas>
     </Border>
 </Window>

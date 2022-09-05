@@ -83,5 +83,15 @@ namespace WPFChess
         {
             Variables.board.rotateBoard();
         }
+
+        private void prev_button_Click(object sender, RoutedEventArgs e)
+        {
+            Variables.board.history.previousMove();
+        }
+
+        private void next_button_Click(object sender, RoutedEventArgs e)
+        {
+            Variables.board.history.nextMove();
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace WPFChess
             image.Source = new BitmapImage(new Uri(Variables.piecePaths[this.GetType().Name + "_" + this.color], UriKind.Relative));
             Panel.SetZIndex(image, z);
             image.Name = id;
-            image.Width = 50;
+            image.Width = 80;
             image.Height = 80;
             updateImage();
             image.MouseMove += new MouseEventHandler(Variables.dragHandler);
@@ -96,11 +96,14 @@ namespace WPFChess
                 newField.piece.destroy();
             }            
             this.firstMove = false;
+            Piece? removedPiece = newField.piece;
             newField.piece = this;
             field.piece = null;
+            Field prevField = field;
             field = newField;
             updateImage();
             Variables.board.changeTurn();
+            Variables.board.history.addMove(prevField, newField, this, removedPiece);
         }
 
         public void destroy()

@@ -34,6 +34,8 @@ namespace WPFChess
 
         public bool rotated;
 
+        public MovesHistory history;
+
         public Board(int sizeOfField, int sizeOfOffset, int sizeOfBoard, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler dragHandler, WPFChess.MainWindow.MouseMoveEventHandler clickHandler)
         {
             Variables.sizeOfOffset = sizeOfOffset;
@@ -45,6 +47,7 @@ namespace WPFChess
             Variables.clickHandler = clickHandler;
             Variables.board = this;
             rotated = false;
+            history = new MovesHistory();
             timersControl = new DispatcherTimer();
             timersControl.Tick += new EventHandler(checkTimers);
             timersControl.Interval += new TimeSpan(0, 0, 0, 1);
