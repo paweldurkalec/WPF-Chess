@@ -20,7 +20,7 @@ namespace WPFChess
 
         public string color { get; set; }
 
-        protected bool firstMove;
+        public bool firstMove { get; set; }
 
         public Piece(string color, Field field, int z=2)
         {
@@ -86,6 +86,7 @@ namespace WPFChess
 
         public virtual void move(Field newField)
         {
+            string moveType;
             if (!isMovePossible(newField))
             {
                 updateImage();
@@ -94,7 +95,8 @@ namespace WPFChess
             if (newField.piece != null)
             {
                 newField.piece.destroy();
-            }            
+            }
+            moveType = firstMove ? "first" : "normal";
             this.firstMove = false;
             Piece? removedPiece = newField.piece;
             newField.piece = this;
@@ -103,7 +105,7 @@ namespace WPFChess
             field = newField;
             updateImage();
             Variables.board.changeTurn();
-            Variables.board.history.addMove(prevField, newField, this, removedPiece);
+            Variables.board.history.addMove(prevField, newField, this, removedPiece, moveType);
         }
 
         public void destroy()

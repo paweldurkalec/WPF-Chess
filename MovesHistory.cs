@@ -12,13 +12,15 @@ namespace WPFChess
         Field endField;
         Piece movingPiece;
         Piece? removedPiece;
+        public string type { get; set; }
 
-        public Move(Field startField, Field endField, Piece movingPiece, Piece? removedPiece)
+        public Move(Field startField, Field endField, Piece movingPiece, Piece? removedPiece, string type)
         {
             this.startField = startField;
             this.endField = endField;
             this.movingPiece = movingPiece;
             this.removedPiece = removedPiece;
+            this.type = type;
         }
 
         public void doMove()
@@ -27,6 +29,7 @@ namespace WPFChess
             this.endField.piece = movingPiece;
             this.movingPiece.field = endField;
             this.movingPiece.updateImage();
+            this.movingPiece.firstMove = false;
             if(removedPiece != null)
             {
                 removedPiece.destroy();
@@ -45,6 +48,10 @@ namespace WPFChess
                 Variables.boardCanvas.Children.Add(removedPiece.image);
                 removedPiece.updateImage();
             }
+            if (type != "normal")
+            {
+                movingPiece.firstMove = true;
+            }
             movingPiece.updateImage();
             Variables.board.changeTurn();
         }
@@ -61,29 +68,54 @@ namespace WPFChess
             nextMoves = new Stack<Move>();
         }
 
-        public void addMove(Field startField, Field endField, Piece movingPiece, Piece? removedPiece)
+        public void addMove(Field startField, Field endField, Piece movingPiece, Piece? removedPiece, string type="normal")
         {
             nextMoves = new Stack<Move>();
-            previousMoves.Push(new Move(startField, endField, movingPiece, removedPiece));
+            previousMoves.Push(new Move(startField, endField, movingPiece, removedPiece, type));
         }
 
         public void previousMove()
         {
+            Move move;
             if (previousMoves.Count > 0)
             {
-                Move move = previousMoves.Pop();
+                move = previousMoves.Pop();
                 move.undoMove();
                 nextMoves.Push(move);
+
+                //castle
+                if (move.type == "castle")
+                {
+                    move = previousMoves.Pop();
+                    move.undoMove();
+                    nextMoves.Push(move);
+                }
             }
         }
 
         public void nextMove()
         {
+            Move move;
             if (nextMoves.Count > 0)
             {
-                Move move = nextMoves.Pop();
+                move = nextMoves.Pop();
                 move.doMove();
                 previousMoves.Push(move);
+            }
+
+            //castle
+            if (nextMoves.Count > 0)
+            {
+                move = nextMoves.Pop();
+                if (move.type == "castle")
+                {
+                    move.doMove();
+                    previousMoves.Push(move);
+                }
+                else
+                {
+                    nextMoves.Push(move);
+                }
             }
         }
     }

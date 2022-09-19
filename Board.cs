@@ -231,10 +231,10 @@ namespace WPFChess
 
         public void dropPiece(Image img, Point point)
         {
-            Piece piece = findPieceById(img.Name);
+            Piece piece;
             if (duringPromotion == null)
             {
-                
+                piece = findPieceById(img.Name);
                 Field newField = findNearestField(point.X, point.Y);
                 piece.move(newField);
             }
@@ -522,6 +522,24 @@ namespace WPFChess
                 }
             }
             return null;
+        }
+
+        public bool isUnderAttack(Field f, string color)
+        {
+            foreach (Field field in fields)
+            {
+                if (field.piece is not null)
+                {
+                    if (field.piece.color != color)
+                    {
+                        if (field.piece.canAttack(f))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         public bool isCheck(string color)
