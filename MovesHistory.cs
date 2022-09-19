@@ -14,6 +14,8 @@ namespace WPFChess
         Piece? removedPiece;
         public string type { get; set; }
 
+        public Pawn pawnJumpedTwoFields { get; set; }
+
         public Move(Field startField, Field endField, Piece movingPiece, Piece? removedPiece, string type)
         {
             this.startField = startField;
@@ -21,10 +23,17 @@ namespace WPFChess
             this.movingPiece = movingPiece;
             this.removedPiece = removedPiece;
             this.type = type;
+            pawnJumpedTwoFields = Variables.board.pawnJumpedTwoFields;
         }
 
         public void doMove()
         {
+            if(type == "destroy")
+            {
+                endField.piece = null;
+                removedPiece.destroy();
+                return;
+            }
             this.startField.piece = null;
             this.endField.piece = movingPiece;
             this.movingPiece.field = endField;
@@ -34,11 +43,20 @@ namespace WPFChess
             {
                 removedPiece.destroy();
             }
+            Variables.board.pawnJumpedTwoFields = pawnJumpedTwoFields;
             Variables.board.changeTurn();
         }
 
         public void undoMove()
         {
+            if (type == "destroy")
+            {
+                Variables.board.pawnJumpedTwoFields = (Pawn)removedPiece;
+                endField.piece = removedPiece;
+                Variables.boardCanvas.Children.Add(removedPiece.image);
+                removedPiece.updateImage();
+                return;
+            }
             this.startField.piece = movingPiece;
             movingPiece.field = this.startField;
             this.endField.piece = removedPiece;
@@ -82,14 +100,20 @@ namespace WPFChess
                 move = previousMoves.Pop();
                 move.undoMove();
                 nextMoves.Push(move);
-
-                //castle
-                if (move.type == "castle")
+                Variables.board.pawnJumpedTwoFields = null;
+                if (move.type == "castle" || move.type == "destroy")
                 {
                     move = previousMoves.Pop();
                     move.undoMove();
                     nextMoves.Push(move);
                 }
+            }
+
+            if (previousMoves.Count > 0)
+            {
+                move = previousMoves.Pop();
+                Variables.board.pawnJumpedTwoFields = move.pawnJumpedTwoFields;
+                previousMoves.Push(move);
             }
         }
 
@@ -107,7 +131,7 @@ namespace WPFChess
             if (nextMoves.Count > 0)
             {
                 move = nextMoves.Pop();
-                if (move.type == "castle")
+                if (move.type == "castle" || move.type=="destroy")
                 {
                     move.doMove();
                     previousMoves.Push(move);

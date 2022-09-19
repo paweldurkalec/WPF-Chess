@@ -22,7 +22,19 @@ namespace WPFChess
 
         public override void move(Field newField)
         {
+            int oldY = field.y;
+            bool tookEnPassant = (newField.piece == null && newField.x != field.x) ? true : false;
             base.move(newField);
+            if(Math.Abs(field.y - oldY) == 1 && tookEnPassant)
+            {
+                Pawn toDestroy = (Pawn)Variables.board.getField(field.x, oldY).piece;
+                Variables.board.history.addMove(null, Variables.board.getField(field.x, oldY), null, toDestroy, "destroy");
+                toDestroy.destroy();
+            }
+            //if (Math.Abs(field.y - oldY) == 2)
+           // {
+            //    Variables.board.pawnJumpedTwoFields = this;
+           // }
             if (color == "white" && newField.y == Variables.heightOfBoard)
             {
                 promote();
@@ -208,6 +220,29 @@ namespace WPFChess
                 if (color == "black" && newField.y == field.y - 1 && Math.Abs(field.x - newField.x) == 1)
                 {
                     return true;
+                }
+            }
+            else if(newField.piece == null)
+            {
+                Piece piece = Variables.board.getField(newField.x, field.y).piece;
+                if (piece != null) 
+                {
+                    if (piece is Pawn)
+                    {
+                        if (((Pawn)piece)==Variables.board.pawnJumpedTwoFields)
+                        {
+                            //white attack
+                            if (color == "white" && newField.y == field.y + 1 && Math.Abs(field.x - newField.x) == 1)
+                            {
+                                return true;
+                            }
+                            //black attack
+                            if (color == "black" && newField.y == field.y - 1 && Math.Abs(field.x - newField.x) == 1)
+                            {
+                                return true;
+                            }
+                        }
+                    }
                 }
             }
             return false;

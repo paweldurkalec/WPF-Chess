@@ -36,6 +36,8 @@ namespace WPFChess
 
         public MovesHistory history;
 
+        public Pawn pawnJumpedTwoFields { get; set; }
+
         public Board(int sizeOfField, int sizeOfOffset, int sizeOfBoard, int setup, Canvas boardCanvas, WPFChess.MainWindow.MouseMoveEventHandler dragHandler, WPFChess.MainWindow.MouseMoveEventHandler clickHandler)
         {
             Variables.sizeOfOffset = sizeOfOffset;
@@ -44,7 +46,7 @@ namespace WPFChess
             Variables.heightOfBoard = sizeOfBoard;
             Variables.boardCanvas = boardCanvas;
             Variables.dragHandler = dragHandler;
-            Variables.clickHandler = clickHandler;
+            Variables.clickHandler = clickHandler;           
             Variables.board = this;
             rotated = false;
             history = new MovesHistory();

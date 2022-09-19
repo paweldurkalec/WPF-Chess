@@ -92,20 +92,28 @@ namespace WPFChess
                 updateImage();
                 return;
             }
+            Piece? removedPiece = newField.piece;
             if (newField.piece != null)
             {
                 newField.piece.destroy();
-            }
+            }          
             moveType = firstMove ? "first" : "normal";
-            this.firstMove = false;
-            Piece? removedPiece = newField.piece;
+            this.firstMove = false;           
             newField.piece = this;
             field.piece = null;
             Field prevField = field;
             field = newField;
             updateImage();
             Variables.board.changeTurn();
-            Variables.board.history.addMove(prevField, newField, this, removedPiece, moveType);
+            if (this is Pawn && Math.Abs(prevField.y - newField.y) == 2)
+            {
+                Variables.board.pawnJumpedTwoFields = (Pawn)this;
+            }
+            else
+            {
+                Variables.board.pawnJumpedTwoFields = null;
+            }
+            Variables.board.history.addMove(prevField, newField, this, removedPiece, moveType);           
         }
 
         public void destroy()
