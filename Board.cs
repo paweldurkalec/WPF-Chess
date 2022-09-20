@@ -146,7 +146,7 @@ namespace WPFChess
                 timerBlack.stop();
                 timerWhite.start();
             }
-            if (Variables.autoRotation.IsChecked ?? false)
+            if (Variables.autoRotation.IsChecked ?? false && duringPromotion == null)
             {
                 rotateBoard();
             }

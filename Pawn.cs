@@ -31,18 +31,25 @@ namespace WPFChess
                 Variables.board.history.addMove(null, Variables.board.getField(field.x, oldY), null, toDestroy, "destroy");
                 toDestroy.destroy();
             }
-            //if (Math.Abs(field.y - oldY) == 2)
-           // {
-            //    Variables.board.pawnJumpedTwoFields = this;
-           // }
-            if (color == "white" && newField.y == Variables.heightOfBoard)
+            if (reachedEndOfBoard() && oldY!=field.y)
             {
+                Variables.board.changeTurn();
                 promote();
             }
-            else if(color == "black" && newField.y == 1)
+        }
+
+        private bool reachedEndOfBoard()
+        {
+            string color = Variables.board.rotated ? Variables.board.getSecondColor(this.color) : this.color;
+            if (color == "white" && field.y == Variables.heightOfBoard)
             {
-                promote();
+                return true;
             }
+            else if (color == "black" && field.y == 1)
+            {
+                return true;
+            }
+            return false;
         }
 
         private void promote()
@@ -97,6 +104,7 @@ namespace WPFChess
             var partialResult = from Field field in promotionFields group field by new { piece = field.piece } into p where p.Key.piece is not null select p.Key.piece;
             var result = from item in partialResult where item.id == id select item;
             Piece newPiece = result.First();
+            Variables.board.history.lastMoveWasPromotion();
 
             this.field.piece = newPiece;
             newPiece.field = this.field;
@@ -136,6 +144,10 @@ namespace WPFChess
                         }
                     }
                 }
+            }
+            if (Variables.autoRotation.IsChecked ?? false)
+            {
+                Variables.board.rotateBoard();
             }
 
         }

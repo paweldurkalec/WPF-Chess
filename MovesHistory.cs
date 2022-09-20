@@ -12,6 +12,7 @@ namespace WPFChess
         Field endField;
         Piece movingPiece;
         Piece? removedPiece;
+        Piece? promotedTo;
         public string type { get; set; }
 
         public Pawn pawnJumpedTwoFields { get; set; }
@@ -32,23 +33,47 @@ namespace WPFChess
             {
                 endField.piece = null;
                 removedPiece.destroy();
-                return;
             }
-            this.startField.piece = null;
-            this.endField.piece = movingPiece;
-            this.movingPiece.field = endField;
-            this.movingPiece.updateImage();
-            this.movingPiece.firstMove = false;
-            if(removedPiece != null)
+            else if (type == "promotion")
             {
-                removedPiece.destroy();
+                if (removedPiece != null)
+                {
+                    removedPiece.destroy();
+                }
+                endField.piece = promotedTo;
+                this.startField.piece = null;
+                promotedTo.field = endField;
+                Variables.boardCanvas.Children.Add(promotedTo.image);
+                this.promotedTo.updateImage();
+                movingPiece.destroy();               
+                Variables.board.pawnJumpedTwoFields = pawnJumpedTwoFields;
+                Variables.board.changeTurn();
             }
-            Variables.board.pawnJumpedTwoFields = pawnJumpedTwoFields;
-            Variables.board.changeTurn();
+            else
+            {
+                if (removedPiece != null)
+                {
+                    removedPiece.destroy();
+                }
+                this.startField.piece = null;
+                this.endField.piece = movingPiece;
+                this.movingPiece.field = endField;
+                this.movingPiece.updateImage();
+                this.movingPiece.firstMove = false;                
+                Variables.board.pawnJumpedTwoFields = pawnJumpedTwoFields;
+                Variables.board.changeTurn();
+            }
+            
         }
 
         public void undoMove()
         {
+            if(type == "promotion")
+            {
+                promotedTo = endField.piece;
+                promotedTo.destroy();
+                Variables.boardCanvas.Children.Add(movingPiece.image);
+            }
             if (type == "destroy")
             {
                 Variables.board.pawnJumpedTwoFields = (Pawn)removedPiece;
@@ -142,6 +167,14 @@ namespace WPFChess
                 }
             }
         }
+
+        public void lastMoveWasPromotion()
+        {
+            Move move = previousMoves.Pop();
+            move.type = "promotion";
+            previousMoves.Push(move);
+        }
+
     }
 
 

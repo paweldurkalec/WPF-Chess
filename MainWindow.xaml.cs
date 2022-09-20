@@ -81,17 +81,26 @@ namespace WPFChess
 
         private void rotate_Click(object sender, RoutedEventArgs e)
         {
-            Variables.board.rotateBoard();
+            if (Variables.board.duringPromotion == null)
+            {
+                Variables.board.rotateBoard();
+            }
         }
 
         private void prev_button_Click(object sender, RoutedEventArgs e)
         {
-            Variables.board.history.previousMove();
+            if (Variables.board.duringPromotion == null)
+            {
+                Variables.board.history.previousMove();
+            }
         }
 
         private void next_button_Click(object sender, RoutedEventArgs e)
         {
-            Variables.board.history.nextMove();
+            if (Variables.board.duringPromotion == null)
+            {
+                Variables.board.history.nextMove();
+            }
         }
     }
 }
