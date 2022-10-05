@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,9 +60,32 @@ namespace WPFChess
             onMove = "white";
             this.initializeBoard(boardCanvas, sizeOfBoard);
             this.initalizeFields(sizeOfField, sizeOfOffset, setup);
-            timerWhite = new Timer(500, new System.Drawing.Point(1030, 100), "White");
-            timerWhite.start();
-            timerBlack = new Timer(500, new System.Drawing.Point(1170, 100), "Black");
+            timerWhite = new Timer(readTimeFromFile("white"), new System.Drawing.Point(1030, 100), "White");            
+            timerBlack = new Timer(readTimeFromFile("black"), new System.Drawing.Point(1170, 100), "Black");
+        }
+
+        private int readTimeFromFile(string color)
+        {
+            bool found = false;
+            int result = 0;
+            string workingDirectory = Environment.CurrentDirectory;
+            string fileDirectory = workingDirectory + @"/times.txt";
+            if (File.Exists(fileDirectory))
+            {
+                foreach (string line in File.ReadLines(fileDirectory))
+                {
+                    if (found)
+                    {
+                        result = Int32.Parse(line);
+                        break;
+                    }
+                    if (line.Contains(color))
+                    {
+                        found = true;
+                    }
+                }
+            }
+            return result == 0 ? 300 : result;
         }
 
         private void initializeBoard(Canvas boardCanvas, int  sizeOfBoard)

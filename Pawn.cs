@@ -33,7 +33,7 @@ namespace WPFChess
             }
             if (reachedEndOfBoard() && oldY!=field.y)
             {
-                Variables.board.changeTurn();
+                //Variables.board.changeTurn();
                 promote();
             }
         }
@@ -55,6 +55,7 @@ namespace WPFChess
         private void promote()
         {
             Variables.board.duringPromotion = this;
+            string color = Variables.board.rotated ? Variables.board.getSecondColor(this.color) : this.color;
             Rectangle backgroundRectangle = new Rectangle()
             {
                 Width = 1000,
@@ -84,6 +85,7 @@ namespace WPFChess
             }
             Canvas.SetTop(promotionImage, promotionImageY);
             Variables.boardCanvas.Children.Add(promotionImage);
+            color = this.color;
 
             promotionFields = new Field[4];
             int temp = 0;
